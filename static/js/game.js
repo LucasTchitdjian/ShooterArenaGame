@@ -28,6 +28,7 @@ class Game {
         this.startGameLoop();
         this.startTimer();
         this.spawnTargets();
+        this.loadHighScores();
     }
 
     createObstacles() {
@@ -95,6 +96,7 @@ class Game {
         this.gameOver = true;
         document.getElementById('gameOver').classList.remove('d-none');
         document.getElementById('finalScore').textContent = this.score;
+        this.saveScore(this.score);
     }
 
     checkCollisions() {
@@ -126,9 +128,9 @@ class Game {
 
     checkProjectileObstacleCollision(projectile, obstacle) {
         // Check if projectile intersects with obstacle
-        const intersectsX = projectile.x >= obstacle.x - projectile.radius && 
+        const intersectsX = projectile.x >= obstacle.x - projectile.radius &&
                            projectile.x <= obstacle.x + obstacle.width + projectile.radius;
-        const intersectsY = projectile.y >= obstacle.y - projectile.radius && 
+        const intersectsY = projectile.y >= obstacle.y - projectile.radius &&
                            projectile.y <= obstacle.y + obstacle.height + projectile.radius;
 
         if (intersectsX && intersectsY) {
@@ -223,6 +225,43 @@ class Game {
             }
         };
         gameLoop();
+    }
+
+    async loadHighScores() {
+        try {
+            const response = await fetch('/scores');
+            const scores = await response.json();
+            this.updateHighScoresDisplay(scores);
+        } catch (error) {
+            console.error('Error loading high scores:', error);
+        }
+    }
+
+    updateHighScoresDisplay(scores) {
+        const highScoresList = document.getElementById('highScoresList');
+        highScoresList.innerHTML = scores.map(score => `
+            <div class="high-score-item list-group-item">
+                <span class="date">${new Date(score.created_at).toLocaleDateString()}</span>
+                <span class="score">${score.points}</span>
+            </div>
+        `).join('');
+    }
+
+    async saveScore(score) {
+        try {
+            const response = await fetch('/scores', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ score: score })
+            });
+            if (response.ok) {
+                this.loadHighScores(); // Reload high scores after saving
+            }
+        } catch (error) {
+            console.error('Error saving score:', error);
+        }
     }
 }
 

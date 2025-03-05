@@ -2,6 +2,8 @@
     background-color: var(--bs-dark);
     border: 2px solid var(--bs-primary);
     cursor: crosshair;
+    max-width: 100%;
+    height: auto;
 }
 
 .game-stats {
@@ -18,4 +20,21 @@
     border-radius: 10px;
     text-align: center;
     border: 2px solid var(--bs-primary);
+}
+
+.high-scores {
+    background-color: var(--bs-dark);
+    border: 2px solid var(--bs-primary);
+}
+
+.high-score-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.high-score-item .score {
+    font-weight: bold;
+    color: var(--bs-success);
 }

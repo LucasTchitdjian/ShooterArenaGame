@@ -9,7 +9,7 @@
 <body>
     <div class="container mt-3">
         <div class="row">
-            <div class="col-12 text-center">
+            <div class="col-12 col-md-9">
                 <h1>2D Shooting Game</h1>
                 <div class="game-stats mb-3">
                     <span class="badge bg-primary me-2">Time: <span id="timer">60</span>s</span>
@@ -20,6 +20,18 @@
                     <h2>Game Over!</h2>
                     <p>Final Score: <span id="finalScore">0</span></p>
                     <button class="btn btn-primary" onclick="location.reload()">Play Again</button>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="high-scores card">
+                    <div class="card-header">
+                        <h3 class="mb-0">High Scores</h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="highScoresList" class="list-group list-group-flush">
+                            <!-- High scores will be inserted here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
