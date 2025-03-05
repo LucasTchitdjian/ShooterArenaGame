@@ -83,7 +83,7 @@ class Game {
         const timer = setInterval(() => {
             this.timeLeft--;
             timerElement.textContent = this.timeLeft;
-            
+
             if (this.timeLeft <= 0) {
                 clearInterval(timer);
                 this.endGame();
@@ -125,10 +125,36 @@ class Game {
     }
 
     checkProjectileObstacleCollision(projectile, obstacle) {
-        return projectile.x >= obstacle.x &&
-               projectile.x <= obstacle.x + obstacle.width &&
-               projectile.y >= obstacle.y &&
-               projectile.y <= obstacle.y + obstacle.height;
+        // Check if projectile intersects with obstacle
+        const intersectsX = projectile.x >= obstacle.x - projectile.radius && 
+                           projectile.x <= obstacle.x + obstacle.width + projectile.radius;
+        const intersectsY = projectile.y >= obstacle.y - projectile.radius && 
+                           projectile.y <= obstacle.y + obstacle.height + projectile.radius;
+
+        if (intersectsX && intersectsY) {
+            // Determine which side was hit (top/bottom or left/right)
+            const dx = projectile.x - (obstacle.x + obstacle.width / 2);
+            const dy = projectile.y - (obstacle.y + obstacle.height / 2);
+
+            // If hit on left or right side
+            if (Math.abs(dx) > Math.abs(dy) * (obstacle.width / obstacle.height)) {
+                projectile.angle = Math.PI - projectile.angle;
+            }
+            // If hit on top or bottom
+            else {
+                projectile.angle = -projectile.angle;
+            }
+
+            // Add bounce count to projectile if not exists
+            projectile.bounceCount = (projectile.bounceCount || 0) + 1;
+
+            // Move projectile slightly away from obstacle to prevent multiple collisions
+            projectile.x += Math.cos(projectile.angle) * projectile.speed;
+            projectile.y += Math.sin(projectile.angle) * projectile.speed;
+
+            return projectile.bounceCount >= 3; // Remove after 3 bounces
+        }
+        return false;
     }
 
     update() {
