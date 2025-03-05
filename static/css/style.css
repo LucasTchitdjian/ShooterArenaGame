@@ -1,0 +1,21 @@
+#gameCanvas {
+    background-color: var(--bs-dark);
+    border: 2px solid var(--bs-primary);
+    cursor: crosshair;
+}
+
+.game-stats {
+    font-size: 1.2em;
+}
+
+.game-over {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--bs-dark);
+    padding: 2rem;
+    border-radius: 10px;
+    text-align: center;
+    border: 2px solid var(--bs-primary);
+}
