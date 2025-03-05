@@ -29,7 +29,7 @@ class Game {
         this.startGameLoop();
         this.startTimer();
         this.spawnTargets();
-        this.loadHighScores();
+        this.loadHighScores(); // Now loads from localStorage
     }
 
     createObstacles() {
@@ -273,10 +273,10 @@ class Game {
         gameLoop();
     }
 
-    async loadHighScores() {
+    loadHighScores() {
         try {
-            const response = await fetch('/scores');
-            const scores = await response.json();
+            // Get scores from localStorage or initialize empty array
+            const scores = JSON.parse(localStorage.getItem('highScores')) || [];
             this.updateHighScoresDisplay(scores);
         } catch (error) {
             console.error('Error loading high scores:', error);
@@ -285,7 +285,10 @@ class Game {
 
     updateHighScoresDisplay(scores) {
         const highScoresList = document.getElementById('highScoresList');
-        highScoresList.innerHTML = scores.map(score => `
+        // Sort scores by points in descending order and take top 10
+        const topScores = scores.sort((a, b) => b.points - a.points).slice(0, 10);
+        
+        highScoresList.innerHTML = topScores.map(score => `
             <div class="high-score-item list-group-item">
                 <span class="date">${new Date(score.created_at).toLocaleDateString()}</span>
                 <span class="score">${score.points}</span>
@@ -293,18 +296,22 @@ class Game {
         `).join('');
     }
 
-    async saveScore(score) {
+    saveScore(score) {
         try {
-            const response = await fetch('/scores', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ score: score })
+            // Get existing scores or initialize empty array
+            const scores = JSON.parse(localStorage.getItem('highScores')) || [];
+            
+            // Add new score
+            scores.push({
+                points: score,
+                created_at: new Date().toISOString()
             });
-            if (response.ok) {
-                this.loadHighScores(); // Reload high scores after saving
-            }
+            
+            // Save back to localStorage
+            localStorage.setItem('highScores', JSON.stringify(scores));
+            
+            // Update the display
+            this.loadHighScores();
         } catch (error) {
             console.error('Error saving score:', error);
         }
