@@ -38,3 +38,7 @@
     font-weight: bold;
     color: var(--bs-success);
 }
+
+#pauseButton {
+    margin-left: 5px;
+}

@@ -5,6 +5,7 @@ class Game {
         this.score = 0;
         this.timeLeft = 60;
         this.gameOver = false;
+        this.isPaused = false;
         this.audioManager = new AudioManager();
 
         // Game objects
@@ -48,10 +49,50 @@ class Game {
         });
 
         this.canvas.addEventListener('click', () => {
-            if (!this.gameOver) {
+            if (!this.gameOver && !this.isPaused) {
                 this.shoot();
             }
         });
+
+        // Pause button
+        const pauseButton = document.getElementById('pauseButton');
+        pauseButton.addEventListener('click', () => {
+            this.togglePause();
+        });
+
+        // Add keyboard controls for pause (spacebar)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                this.togglePause();
+            }
+        });
+    }
+
+    togglePause() {
+        if (this.gameOver) return;
+        
+        this.isPaused = !this.isPaused;
+        const pauseButton = document.getElementById('pauseButton');
+        
+        if (this.isPaused) {
+            pauseButton.textContent = 'Resume';
+            pauseButton.classList.replace('btn-warning', 'btn-success');
+            
+            // Draw pause message
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = '30px Arial';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('Game Paused', this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.font = '16px Arial';
+            this.ctx.fillText('Press Space or click Resume to continue', this.canvas.width / 2, this.canvas.height / 2 + 40);
+        } else {
+            pauseButton.textContent = 'Pause';
+            pauseButton.classList.replace('btn-success', 'btn-warning');
+            // Resume game loop
+            this.startGameLoop();
+        }
     }
 
     shoot() {
@@ -81,13 +122,15 @@ class Game {
 
     startTimer() {
         const timerElement = document.getElementById('timer');
-        const timer = setInterval(() => {
-            this.timeLeft--;
-            timerElement.textContent = this.timeLeft;
+        this.timer = setInterval(() => {
+            if (!this.isPaused) {
+                this.timeLeft--;
+                timerElement.textContent = this.timeLeft;
 
-            if (this.timeLeft <= 0) {
-                clearInterval(timer);
-                this.endGame();
+                if (this.timeLeft <= 0) {
+                    clearInterval(this.timer);
+                    this.endGame();
+                }
             }
         }, 1000);
     }
@@ -218,10 +261,13 @@ class Game {
 
     startGameLoop() {
         const gameLoop = () => {
-            if (!this.gameOver) {
+            if (!this.gameOver && !this.isPaused) {
                 this.update();
                 this.draw();
                 requestAnimationFrame(gameLoop);
+            } else if (this.isPaused) {
+                // Stop the loop but allow it to be resumed later
+                return;
             }
         };
         gameLoop();
