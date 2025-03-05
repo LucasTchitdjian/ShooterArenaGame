@@ -1,6 +1,7 @@
-from flask import render_template, request, jsonify
-from app import app, db
-from models import Score
+from flask import Flask, render_template, request, jsonify
+
+# create the app
+app = Flask(__name__)
 
 @app.route('/')
 def index():
@@ -8,15 +9,11 @@ def index():
 
 @app.route('/scores', methods=['GET'])
 def get_scores():
-    scores = Score.query.order_by(Score.points.desc()).limit(10).all()
     return jsonify([score.to_dict() for score in scores])
 
 @app.route('/scores', methods=['POST'])
 def save_score():
     data = request.get_json()
-    score = Score(points=data['score'])
-    db.session.add(score)
-    db.session.commit()
     return jsonify(score.to_dict()), 201
 
 if __name__ == '__main__':
